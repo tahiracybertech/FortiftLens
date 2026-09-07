@@ -1,0 +1,14 @@
+/* FortifyLens typography
+   - Display (headlines, phase labels): Chakra Petch — angular, cut-corner
+     letterforms that echo the hexagonal shield + circuit motif in the logo.
+   - Body (paragraphs, UI copy): IBM Plex Sans — built for technical/
+     engineering contexts, stays legible at report-reading lengths.
+   - Data/mono (code, hashes, CVE ids, stats, phase counters): IBM Plex Mono
+     — same family as body, keeps code and prose visually related. */
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --font-display: 'Chakra Petch', 'IBM Plex Sans', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace;
+}

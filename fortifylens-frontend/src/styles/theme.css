@@ -1,0 +1,372 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 16px;
+  --background: #080B14;
+  --foreground: #E8EEFF;
+  --card: #0F1629;
+  --card-foreground: #E8EEFF;
+  --popover: #0F1629;
+  --popover-foreground: #E8EEFF;
+  --primary: #00D4FF;
+  --primary-foreground: #080B14;
+  --secondary: #151D35;
+  --secondary-foreground: #E8EEFF;
+  --muted: #151D35;
+  --muted-foreground: #6B7399;
+  --accent: #00D4FF;
+  --accent-foreground: #080B14;
+  --destructive: #ef4444;
+  --destructive-foreground: #E8EEFF;
+  --border: rgba(0, 212, 255, 0.15);
+  --input: transparent;
+  --input-background: rgba(21, 29, 53, 0.5);
+  --switch-background: #151D35;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #00D4FF;
+  --chart-1: #00D4FF;
+  --chart-2: #151D35;
+  --chart-3: #6B7399;
+  --chart-4: #0F1629;
+  --chart-5: #00ffff;
+  --radius: 0.625rem;
+  --sidebar: #080B14;
+  --sidebar-foreground: #E8EEFF;
+  --sidebar-primary: #00D4FF;
+  --sidebar-primary-foreground: #080B14;
+  --sidebar-accent: #151D35;
+  --sidebar-accent-foreground: #E8EEFF;
+  --sidebar-border: rgba(0, 212, 255, 0.15);
+  --sidebar-ring: #00D4FF;
+
+  /* FortifyLens brand accents — used sparingly, never as the primary color */
+  --circuit-teal: #0891A8;
+  --risk-amber: #FFB020;
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+
+  /**
+  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
+  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
+  */
+
+  html {
+    font-size: var(--font-size);
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h4 {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  label {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  button {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  input {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+  }
+
+  code, .font-data {
+    font-family: var(--font-mono);
+  }
+}
+
+/* Signature element — a single traveling scan-line, echoing the lens/scan
+   concept in the logo. Used once per moment (hero load, a card reveal),
+   never as ambient/looping decoration. */
+@layer utilities {
+  .scan-line {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .scan-line::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.35), transparent);
+    width: 40%;
+    transform: translateX(-120%);
+    animation: scan-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) 1;
+  }
+
+  @keyframes scan-sweep {
+    to { transform: translateX(280%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scan-line::after {
+      animation: none;
+      display: none;
+    }
+  }
+}
+
+/* ── Landing engagement utilities — all colors derived from CSS vars,
+   no raw hex. Palette stays cyan/teal + amber on the navy background. ── */
+@layer utilities {
+  /* Gradient payoff text: teal → primary cyan → amber, clipped to glyphs. */
+  .txt-gradient {
+    background-image: linear-gradient(
+      100deg,
+      var(--circuit-teal),
+      var(--primary) 52%,
+      var(--risk-amber)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Decorative dot field, faded toward its edges. Positioned absolutely. */
+  .dot-wave {
+    background-image: radial-gradient(
+      color-mix(in srgb, var(--circuit-teal) 60%, transparent) 1px,
+      transparent 1.4px
+    );
+    background-size: 12px 12px;
+    -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 0%, transparent 72%);
+    mask-image: radial-gradient(circle at 50% 50%, #000 0%, transparent 72%);
+  }
+
+  /* Card with a thin gradient bar across its top edge. */
+  .card-accent {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-accent::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-image: linear-gradient(
+      90deg,
+      var(--circuit-teal),
+      var(--primary) 50%,
+      var(--risk-amber)
+    );
+  }
+
+  /* Infinite horizontal marquee; track holds a duplicated tile set. */
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee 40s linear infinite;
+  }
+
+  @keyframes marquee {
+    to { transform: translateX(-50%); }
+  }
+
+  /* Gradient-border CTA card via padding-box/border-box layering. */
+  .cta-card {
+    border: 1px solid transparent;
+    background:
+      linear-gradient(var(--background), var(--background)) padding-box,
+      linear-gradient(
+        120deg,
+        var(--circuit-teal),
+        var(--primary) 48%,
+        var(--risk-amber)
+      ) border-box;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+    }
+  }
+}
+
+/* ── Public/auth page engagement utilities — same design language as the
+   landing band. Every color is derived from a CSS var via color-mix, so the
+   palette stays cyan/teal + amber on navy with zero raw hex literals. ── */
+@layer utilities {
+  /* Card / tile lift: a 4px rise plus a teal edge and a soft cast shadow. */
+  .hover-lift {
+    transition:
+      transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+      border-color 0.25s ease-out,
+      box-shadow 0.25s ease-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in srgb, var(--circuit-teal) 58%, var(--border));
+    box-shadow:
+      0 14px 34px -16px color-mix(in srgb, var(--circuit-teal) 55%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--circuit-teal) 20%, transparent);
+  }
+
+  /* A .cta-card shows its ring through a transparent border, so the lift must
+     not paint over the gradient — it keeps the rise + glow only. */
+  .cta-card.hover-lift:hover {
+    border-color: transparent;
+  }
+
+  /* Form-control focus: teal edge + a soft halo ring. Works on the control
+     itself (:focus / :focus-visible) and on a wrapper (:focus-within). */
+  .focus-glow {
+    transition:
+      border-color 0.25s ease-out,
+      box-shadow 0.25s ease-out;
+  }
+
+  .focus-glow:focus,
+  .focus-glow:focus-visible,
+  .focus-glow:focus-within {
+    border-color: var(--circuit-teal);
+    box-shadow:
+      0 0 0 3px color-mix(in srgb, var(--circuit-teal) 24%, transparent),
+      0 0 22px -6px color-mix(in srgb, var(--circuit-teal) 45%, transparent);
+    outline: none;
+  }
+
+  /* One soft radial field, used as the single background wash behind auth cards. */
+  .auth-glow {
+    background-image: radial-gradient(
+      circle at 50% 42%,
+      color-mix(in srgb, var(--circuit-teal) 16%, transparent),
+      transparent 70%
+    );
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hover-lift,
+    .hover-lift:hover {
+      transform: none;
+      transition: none;
+    }
+
+    .focus-glow {
+      transition: none;
+    }
+  }
+}

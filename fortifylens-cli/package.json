@@ -1,0 +1,17 @@
+{
+  "name": "fortifylens-cli",
+  "version": "1.0.0",
+  "description": "FortifyLens CLI — minimal single-file security scanner",
+  "private": true,
+  "bin": {
+    "fortifylens": "./bin/cli.js"
+  },
+  "main": "bin/cli.js",
+  "scripts": {
+    "start": "node bin/cli.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,33 @@
+name: 'FortifyLens Security Scan'
+description: 'Run SAST and SCA security scans using FortifyLens'
+inputs:
+  api-key:
+    description: 'FortifyLens API key (use secrets.FORTIFYLENS_API_KEY)'
+    required: true
+  server-url:
+    description: 'FortifyLens server URL'
+    required: false
+    default: 'https://api.fortifylens.com'
+  project-id:
+    description: 'FortifyLens project ID for result storage'
+    required: true
+  fail-on-severity:
+    description: 'Fail if findings at this severity or above (critical, high, medium, low)'
+    required: false
+    default: 'high'
+  scan-all-files:
+    description: 'Scan all files instead of just changed files'
+    required: false
+    default: 'false'
+outputs:
+  findings-count:
+    description: 'Total number of security findings'
+  critical-count:
+    description: 'Number of critical severity findings'
+  high-count:
+    description: 'Number of high severity findings'
+  has-blocking-findings:
+    description: 'Whether blocking findings were detected (true/false)'
+runs:
+  using: 'node20'
+  main: 'index.js'

@@ -1,0 +1,12 @@
+{
+  "name": "fortifylens-scan-action",
+  "version": "1.0.0",
+  "description": "GitHub Action for FortifyLens security scanning",
+  "main": "index.js",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^6.0.0",
+    "@actions/exec": "^1.1.1"
+  },
+  "license": "MIT"
+}

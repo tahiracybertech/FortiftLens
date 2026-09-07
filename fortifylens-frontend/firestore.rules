@@ -1,0 +1,232 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Auth helpers ─────────────────────────────────────────
+
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isSuperAdmin() {
+      return isAuth() && getUserData().role == 'superadmin';
+    }
+
+    function isOrgAdmin() {
+      return isAuth() && getUserData().role == 'org_admin';
+    }
+
+    function belongsToOrg(orgId) {
+      return isAuth() && getUserData().orgId == orgId;
+    }
+
+    function isOrgAdminOfOrg(orgId) {
+      return isAuth() && (
+        (getUserData().role == 'org_admin' && getUserData().orgId == orgId)
+        ||
+        (getUserData().role == 'org_admin' &&
+         get(/databases/$(database)/documents/organizations/$(orgId)).data.adminUid == request.auth.uid)
+        ||
+        isSuperAdmin()
+      );
+    }
+
+    // ── Default deny all ─────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ════════════════════════════════════════════════════════
+    // USERS
+    // ════════════════════════════════════════════════════════
+    match /users/{userId} {
+      // SECURITY FIX: "allow write" used to let a user set ANY field on
+      // their own profile doc via the client SDK — including role and
+      // orgId — which is a direct self-privilege-escalation path (a
+      // normal user could write role: 'superadmin' straight to Firestore,
+      // bypassing the backend entirely). Split into create/update so
+      // role/orgId can never be client-set or client-changed.
+
+      // Initial profile creation: only as a plain 'user' with a personal
+      // workspace (orgId == own uid). Matches auth.js's POST /profile.
+      allow create: if isAuth() && uid() == userId
+        && request.resource.data.role == 'user'
+        && request.resource.data.orgId == userId;
+
+      // Profile updates: owner may update their own doc, but role and
+      // orgId must stay unchanged. Those are only ever written server-side
+      // (org creation / invitation accept), which uses the Admin SDK and
+      // bypasses these rules.
+      allow update: if isAuth() && uid() == userId
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.orgId == resource.data.orgId;
+
+      allow read: if isAuth() && uid() == userId;
+      // OrgAdmin and SuperAdmin can read any user profile
+      allow read: if isOrgAdmin() || isSuperAdmin();
+    }
+
+    // ════════════════════════════════════════════════════════
+    // USER-OWNED PROJECTS  (users/{uid}/projects/*)
+    // This is the path firebaseService.ts uses for all user data
+    // ════════════════════════════════════════════════════════
+    match /users/{userId}/projects/{projectId} {
+      // Only the owner can read/write their projects
+      allow read, write: if isAuth() && uid() == userId;
+
+      // ── Project History ──────────────────────────────────
+      match /history/{historyId} {
+        allow read, write: if isAuth() && uid() == userId;
+      }
+
+      // ── Project Versions (snapshots) ─────────────────────
+      match /versions/{versionId} {
+        allow read, write: if isAuth() && uid() == userId;
+      }
+
+      // ── Phase Analysis Results ────────────────────────────
+      match /phases/{phaseId} {
+        allow read, write: if isAuth() && uid() == userId;
+      }
+
+      // ── Vulnerabilities ───────────────────────────────────
+      match /vulnerabilities/{vulnId} {
+        allow read, write: if isAuth() && uid() == userId;
+      }
+
+      // ── Analysis Cache (requirement/threat/code/dep/crossphase)
+      // Used by saveAnalysisCache / loadAnalysisCache
+      match /analysisCache/{phase} {
+        allow read, write: if isAuth() && uid() == userId;
+      }
+
+      // ── Remediation Tracking (per finding status)
+      // Used by saveRemediation / loadRemediations
+      match /remediations/{findingId} {
+        allow read, write: if isAuth() && uid() == userId;
+      }
+
+      // ── Phase Mapping Results ─────────────────────────────
+      match /phaseMapping/{mappingId} {
+        allow read, write: if isAuth() && uid() == userId;
+      }
+
+      // ── Dependency Scan Results ───────────────────────────
+      match /dependencyScans/{scanId} {
+        allow read, write: if isAuth() && uid() == userId;
+      }
+
+      // ── Reports (saved PDF metadata) ──────────────────────
+      match /reports/{reportId} {
+        allow read, write: if isAuth() && uid() == userId;
+      }
+    }
+
+    // ── User stats — firebaseService writes to users/{uid}/meta/stats
+    // Rule must match that exact path
+    match /users/{userId}/meta/{docId} {
+      allow read, write: if isAuth() && uid() == userId;
+    }
+
+    // ── Legacy stats path (keep for backwards compat) ────────
+    match /users/{userId}/stats/{statId} {
+      allow read, write: if isAuth() && uid() == userId;
+    }
+
+    // ════════════════════════════════════════════════════════
+    // ORGANIZATIONS  (org admin / superadmin managed)
+    // ════════════════════════════════════════════════════════
+    match /organizations/{orgId} {
+      allow read: if belongsToOrg(orgId) || isOrgAdminOfOrg(orgId) || isSuperAdmin();
+      allow write: if isOrgAdminOfOrg(orgId) || isSuperAdmin();
+
+      // ── Invitations ──────────────────────────────────────
+      // SECURITY: invite codes are effectively single-use passwords.
+      // No client-side read/write — verify (/api/invitations/verify) and
+      // accept (/api/invitations/accept) both run server-side via the
+      // Admin SDK in invitations.js, which bypasses these rules entirely.
+      // The previous "allow read: if true" let any unauthenticated visitor
+      // list every org's pending invitations (emails, codes, roles).
+      match /invitations/{inviteId} {
+        allow read, write: if false;
+      }
+
+      // ── Members ──────────────────────────────────────────
+      match /members/{memberId} {
+        allow read: if belongsToOrg(orgId) || isOrgAdminOfOrg(orgId) || isSuperAdmin();
+        allow create, update, delete: if isOrgAdminOfOrg(orgId) || isSuperAdmin();
+      }
+
+      // ── Teams ─────────────────────────────────────────────
+      match /teams/{teamId} {
+        allow read: if belongsToOrg(orgId) || isOrgAdminOfOrg(orgId) || isSuperAdmin();
+        allow create, update, delete: if isOrgAdminOfOrg(orgId) || isSuperAdmin();
+      }
+
+      // ── Org-level projects (backend writes here) ──────────
+      match /projects/{projectId} {
+        allow read: if belongsToOrg(orgId) || isOrgAdminOfOrg(orgId) || isSuperAdmin();
+        allow create, update: if belongsToOrg(orgId) || isOrgAdminOfOrg(orgId) || isSuperAdmin();
+        allow delete: if isOrgAdminOfOrg(orgId) || isSuperAdmin();
+
+        match /phases/{phaseId} {
+          allow read, write: if belongsToOrg(orgId) || isOrgAdminOfOrg(orgId) || isSuperAdmin();
+        }
+
+        match /vulnerabilities/{vulnId} {
+          allow read, write: if belongsToOrg(orgId) || isOrgAdminOfOrg(orgId) || isSuperAdmin();
+        }
+
+        match /versions/{versionId} {
+          allow read, write: if belongsToOrg(orgId) || isOrgAdminOfOrg(orgId) || isSuperAdmin();
+
+          match /phases/{phaseId} {
+            allow read, write: if belongsToOrg(orgId) || isOrgAdminOfOrg(orgId) || isSuperAdmin();
+          }
+        }
+
+        match /phaseMapping/{mappingId} {
+          allow read, write: if belongsToOrg(orgId) || isOrgAdminOfOrg(orgId) || isSuperAdmin();
+        }
+      }
+
+      match /paymentMethods/{paymentId} {
+        allow read, write: if isOrgAdminOfOrg(orgId) || isSuperAdmin();
+      }
+    }
+
+    // ════════════════════════════════════════════════════════
+    // ACTIVITY LOGS
+    // ════════════════════════════════════════════════════════
+    match /activityLogs/{logId} {
+      allow read: if isAuth() && (
+        resource.data.orgId == getUserData().orgId || isSuperAdmin()
+      );
+      // Caller may only log activity under their OWN org and their OWN userId —
+      // previously any authenticated user could write an arbitrary orgId here,
+      // polluting another organization's audit trail with fake entries.
+      allow create: if isAuth()
+        && request.resource.data.orgId == getUserData().orgId
+        && request.resource.data.userId == uid();
+      // Nobody can edit or delete logs
+      allow update, delete: if isSuperAdmin();
+    }
+
+    // ════════════════════════════════════════════════════════
+    // SUBSCRIPTION PLANS
+    // ════════════════════════════════════════════════════════
+    match /subscriptionPlans/{planId} {
+      allow read: if isAuth();
+      allow write: if isSuperAdmin();
+    }
+  }
+}
+
